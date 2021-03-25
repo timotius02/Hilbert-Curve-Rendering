@@ -1,25 +1,13 @@
-const canvas = document.querySelector("#canvas");
-const ctx = canvas.getContext("2d");
-
-const width = 500;
 const MAX_ORDER = 7;
-
-
-// setup hidden image canvas
-const image = document.getElementById("source");
-const canvas2 = document.createElement("canvas");
-canvas2.width = width;
-canvas2.height = width;
-const ctx2 = canvas2.getContext("2d");
-
+const WIDTH = 400;
 
 let counter;
 let path;
 let nextPath;
 
-const drawLine = (begin, end) => {
-  const beginColor = ctx2.getImageData(begin[0], begin[1], 1, 1).data;
-  const endColor = ctx2.getImageData(end[0], end[1], 1, 1).data;
+const drawLine = (begin, end, ctx, imageCtx) => {
+  const beginColor = imageCtx.getImageData(begin[0], begin[1], 1, 1).data;
+  const endColor = imageCtx.getImageData(end[0], end[1], 1, 1).data;
   const avgColor = 
     [Math.round((beginColor[0] + endColor[0]) / 2),
      Math.round((beginColor[1] + endColor[1]) / 2), 
@@ -89,41 +77,50 @@ const interpolate = (start, end, p) => {
   return [x, y];
 };
 
-const draw = (order) => {
-
-    if (counter > 1) {
-      if (order > MAX_ORDER) {
-  
-        return;
-      }
-      
-      counter = 0;
-      path = [];
-      nextPath = [];
-      setupPaths(order);
-      order++;
-    }
-
+const draw = (order, ctx, imageCtx) => {
     ctx.clearRect(0, 0, 500, 500);
 
     for (let i = 1; i < path.length; i++) {
       let point1 = interpolate(path[i - 1], nextPath[i - 1], counter);
       let point2 = interpolate(path[i], nextPath[i], counter);
 
-      drawLine(point1, point2);
+      drawLine(point1, point2, ctx, imageCtx);
     }
 
-    let nextCount = counter + 0.1;
+    let nextCount = order <= 5? counter + 0.1 : counter + 0.5;
 
     counter = parseFloat(nextCount.toFixed(1));
 
-    requestAnimationFrame(draw.bind(null, order));
+    if (counter > 1) {
+      if (order === MAX_ORDER) {
+        return;
+      }  
+      counter = 0;
+      path = [];
+      nextPath = [];
+      order++;
+      setupPaths(order);
+    }
+    requestAnimationFrame(draw.bind(null, order, ctx, imageCtx));
 
 };
 
+
+const drawStatic = (order, ctx, imageCtx) => {
+  let currentPath = [];
+  const N = Math.pow(2, order);
+  for (let i = 0; i < N * N; i++) {
+    currentPath[i] = convert(hilbert(i, order), order);
+  }
+
+  for (let i = 1; i < currentPath.length; i++) {
+    drawLine(currentPath[i - 1], currentPath[i], ctx, imageCtx);
+  }
+}
+
 const convert = (point, order) => {
   const N = Math.pow(2, order);
-  const len = width / N;
+  const len = WIDTH / N;
   let x = point[0] * len + len / 2;
   let y = point[1] * len + len / 2;
   return [x, y];
@@ -135,7 +132,6 @@ const setupPaths = (order) => {
   for (let i = 0; i < N * N; i++) {
     currentPath[i] = convert(hilbert(i, order), order);
   }
-
   nextPath = [];
   const N2 = Math.pow(2, order + 1);
 
@@ -158,13 +154,42 @@ const setupPaths = (order) => {
   }
 };
 
-
+const image = new Image(WIDTH, WIDTH);
+image.src = "./img/the_scream.jpg";
 image.onload = () => {
-  ctx2.drawImage(image, 0, 0, width, width);
+  const canvas = document.querySelector("#canvas");
+  renderImage(image, canvas);
+}
+
+const setupImage = (image) => {
+  
+  const imageCanvas = document.createElement("canvas");
+  imageCanvas.width = WIDTH;
+  imageCanvas.height = WIDTH;
+  const imageCtx = imageCanvas.getContext("2d");
+  imageCtx.drawImage(image, 0, 0, WIDTH, WIDTH);
+
+  return imageCtx;
+}
+
+const renderImage = (image, canvas) => {
+  const ctx = canvas.getContext("2d");
+
+  const imageCtx = setupImage(image);
 
   counter = 0;
   path = [];
   nextPath = [];
   setupPaths(1);
-  draw(1);
+  draw(1, ctx, imageCtx);
+}
+
+const image2 = new Image(WIDTH, WIDTH);
+image2.src = "./img/mona_lisa.jpg";
+image2.onload = () => {
+  const imageCtx = setupImage(image2);
+
+  const canvas2 = document.querySelector("#canvas2");
+  const ctx2 = canvas2.getContext("2d");
+  drawStatic(MAX_ORDER + 1, ctx2, imageCtx);
 }

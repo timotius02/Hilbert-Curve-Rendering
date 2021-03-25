@@ -1,3 +1,36 @@
-canvas {
-  background-color: black;
+body {
+  font-family: Arial, sans-serif;
+    font-size: 18px;
+    /* background-color: #1b1e25; */
+    color: black;
+    -webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.main {
+  width: 75%;
+  max-width: 800px;
+  min-width: 300px;
+  margin: 0 auto;
+
+}
+
+h1{
+  text-align: center;
+  font-size: 48px;
+}
+
+
+a {
+  color: #f92672;
+  text-decoration: none;
+}
+
+p {
+  text-align: center;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
 }
