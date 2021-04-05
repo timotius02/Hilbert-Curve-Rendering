@@ -154,12 +154,6 @@ const setupPaths = (order) => {
   }
 };
 
-const image = new Image(WIDTH, WIDTH);
-image.src = "./img/the_scream.jpg";
-image.onload = () => {
-  const canvas = document.querySelector("#canvas");
-  renderImage(image, canvas);
-}
 
 const setupImage = (image) => {
   
@@ -174,9 +168,7 @@ const setupImage = (image) => {
 
 const renderImage = (image, canvas) => {
   const ctx = canvas.getContext("2d");
-
   const imageCtx = setupImage(image);
-
   counter = 0;
   path = [];
   nextPath = [];
@@ -193,3 +185,27 @@ image2.onload = () => {
   const ctx2 = canvas2.getContext("2d");
   drawStatic(MAX_ORDER + 1, ctx2, imageCtx);
 }
+
+function uploadImage(e){
+  let reader = new FileReader();
+  reader.onload = function(event){
+      let img = new Image(WIDTH, WIDTH);
+      img.onload = function() {
+          const canvas = document.querySelector("#canvas");
+          renderImage(img, canvas);
+      }
+      img.src = event.target.result;
+  }
+  reader.readAsDataURL(e.target.files[0]); 
+}
+
+function defaultImage() {
+  const image = new Image(WIDTH, WIDTH);
+  image.src = "./img/the_scream.jpg";
+  image.onload = () => {
+    const canvas = document.querySelector("#canvas");
+    renderImage(image, canvas);
+  }
+}
+
+defaultImage();

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Hilbert Curve Painting</title>
-  <!-- <link rel="stylesheet" href="./css/normalize.css"> -->
+  <link rel="stylesheet" href="./css/normalize.css">
   <link rel="stylesheet" href="./css/style.css">
 
 </head>
@@ -17,6 +17,13 @@
     <div class="container">
     
       <canvas id="canvas" width="400" height="400"></canvas>
+      <div>
+        <label for="image-upload" class="image-upload">
+          Upload Image
+        </label>
+        <input id="image-upload" type="file" accept="image/*" onchange="uploadImage(event)" >
+        <button id="reset" onclick="defaultImage()">Reset</button>
+      </div>
     </div>
 
     <h2>More Examples</h2>
